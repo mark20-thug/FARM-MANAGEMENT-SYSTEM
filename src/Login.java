@@ -1,0 +1,98 @@
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class Login extends JFrame {
+
+    JPasswordField passwordField;
+
+    public Login(){
+//page sizes
+
+        setLayout(null);
+        setSize(1600, 800);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//image
+        ImageIcon icon = new ImageIcon(getClass().getResource("images/images.jpeg"));
+        Image icon2 = icon.getImage().getScaledInstance(300, 300, Image.SCALE_DEFAULT);
+        ImageIcon icon3 = new ImageIcon(icon2);
+        JLabel imageLabel = new JLabel(icon3);
+        imageLabel.setBounds(20, 20, 600, 600);
+        add(imageLabel);
+
+//heading text
+        JLabel heading = new JLabel("Farm Management");
+        heading.setBounds(650, 30, 800, 90);
+        heading.setFont(new Font("Railway", Font.BOLD, 76));
+        add(heading);
+//login text
+        JLabel Login = new JLabel("(LOGIN PAGE)");
+        Login.setBounds(650, 160, 600, 70);
+        Login.setFont(new Font("Railway", Font.PLAIN, 60));
+        add(Login);
+
+//name and nameField
+        JLabel name = new JLabel("NAME: ");
+        name.setBounds(660, 280, 300, 50);
+        name.setFont(new Font("Railway", Font.PLAIN, 40));
+        add(name);
+
+        JTextField nameField = new JTextField();
+        nameField.setBounds(900, 280, 500,  50);
+        nameField.setFont(new Font("Railway", Font.PLAIN, 40));
+        add(nameField);
+
+//password and passwordField
+        JLabel password = new JLabel("PASSWORD: ");
+        password.setBounds(660, 380, 300, 50);
+        password.setFont(new Font("Railway", Font.PLAIN, 40));
+        add(password);
+
+        passwordField = new JPasswordField();
+        passwordField.setBounds(900, 380, 500,  50);
+        passwordField.setFont(new Font("Railway", Font.PLAIN, 50));
+        passwordField.setEchoChar('*');
+        add(passwordField);
+
+//password checkbox
+        JCheckBox showPassword =  new JCheckBox("Show Password");
+        showPassword.setBounds(902, 440, 500, 30);
+        showPassword.setFont(new Font("Railway", Font.PLAIN, 15));
+        showPassword.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(showPassword.isSelected()){
+                    passwordField.setEchoChar((char)0);
+            }else{
+
+                    passwordField.setEchoChar('*');
+                }
+            }
+        });
+        add(showPassword);
+
+//Login button
+        JButton loginButton = new JButton("LOGIN");
+        loginButton.setFont(new Font("Railway", Font.PLAIN, 40));
+        loginButton.setBounds(900, 490, 500, 60);
+        loginButton.setBackground(new Color(0, 128, 0));
+        loginButton.setForeground(new Color(255, 255, 255));
+        add(loginButton);
+
+        JLabel text1 = new JLabel("Don't have an account, Please");
+        text1.setBounds(660, 590, 500, 40);
+        text1.setFont(new Font("Railway", Font.PLAIN, 32));
+        add(text1);
+
+        JLabel text2 = new JLabel("Register Here");
+        text2.setBounds(1160, 590, 300, 44);
+        text2.setFont(new Font("Railway", Font.PLAIN, 36));
+        text2.setForeground(new Color(0, 62, 250, 255));
+        add(text2);
+
+        setVisible(true);
+    }
+}
