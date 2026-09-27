@@ -12,7 +12,8 @@ public class Login extends JFrame {
 //page sizes
 
         setLayout(null);
-        setSize(1600, 800);
+        setTitle("Farm_Management_System");
+        setSize(1600, 1200);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //image
@@ -24,14 +25,14 @@ public class Login extends JFrame {
         add(imageLabel);
 
 //heading text
-        JLabel heading = new JLabel("Farm Management");
-        heading.setBounds(650, 30, 800, 90);
+        JLabel heading = new JLabel("FARM MANAGEMENT SYSTEM");
+        heading.setBounds(165, 20, 1500, 100);
         heading.setFont(new Font("Railway", Font.BOLD, 76));
         add(heading);
 //login text
         JLabel Login = new JLabel("(LOGIN PAGE)");
-        Login.setBounds(650, 160, 600, 70);
-        Login.setFont(new Font("Railway", Font.PLAIN, 60));
+        Login.setBounds(650, 140, 600, 70);
+        Login.setFont(new Font("Railway", Font.PLAIN, 40));
         add(Login);
 
 //name and nameField
@@ -60,7 +61,7 @@ public class Login extends JFrame {
 //password checkbox
         JCheckBox showPassword =  new JCheckBox("Show Password");
         showPassword.setBounds(902, 440, 500, 30);
-        showPassword.setFont(new Font("Railway", Font.PLAIN, 15));
+        showPassword.setFont(new Font("Railway", Font.PLAIN, 25));
         showPassword.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,5 +95,8 @@ public class Login extends JFrame {
         add(text2);
 
         setVisible(true);
+    }
+    public static void main(String[] args){
+        new Login();
     }
 }
