@@ -1,5 +1,6 @@
 import org.junit.internal.runners.statements.ExpectException;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class con {
@@ -13,7 +14,7 @@ public class con {
         Connection  conn = null;
 
         try{
-            Class.forName("com.mysql, cj.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
             conn = DriverManager.getConnection(url, username, password);
         }catch(Exception e){

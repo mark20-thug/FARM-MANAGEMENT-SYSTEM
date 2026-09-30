@@ -2,6 +2,10 @@ import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
 
 public class Register extends JFrame {
@@ -126,6 +130,14 @@ public class Register extends JFrame {
     register.setFont(new Font("Railway", Font.PLAIN, 30));
     register.setForeground(new Color(255, 255, 255));
     register.setBackground(new Color(0, 128, 0));
+    register.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(validateField()){
+                storeInDb();
+            }
+        }
+    });
     add(register);
 //lower text
     JLabel text1 = new JLabel("if you already have and account");
@@ -164,9 +176,38 @@ public class Register extends JFrame {
 // methode store data in the database
     private void storeInDb(){
         String username = nameField.getText();
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dob = sdf.format(dateChooser.getDate());
-        String gender;
+        String gender = male.isSelected()? "male" : "female";
+        String mobile = numberField.getText();
+        String email = emailField.getText();
+        String district = districtField.getText();
+        String password = passwordField.getText();
+
+        //Database connection
+        Connection conn = con.getConnection();
+        String query = "INSERT INTO users(username, dob, gender, mobile, email, district, password)VALUES(?,?,?,?,?,?,?)";
+
+        try{
+            PreparedStatement pstm = conn.prepareStatement(query);
+            pstm.setString(1, username);
+            pstm.setString(2, dob);
+            pstm.setString(3, gender);
+            pstm.setString(4, mobile);
+            pstm.setString(5, email);
+            pstm.setString(6, district);
+            pstm.setString(7, password);
+
+            pstm.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Registration Successful","Success", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+            new Login();
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 
