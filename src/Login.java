@@ -3,9 +3,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Login extends JFrame {
 
+    JTextField nameField;
     JPasswordField passwordField;
 
     public Login(){
@@ -41,7 +46,7 @@ public class Login extends JFrame {
         name.setFont(new Font("Railway", Font.PLAIN, 40));
         add(name);
 
-        JTextField nameField = new JTextField();
+        nameField = new JTextField();
         nameField.setBounds(900, 280, 500,  50);
         nameField.setFont(new Font("Railway", Font.PLAIN, 40));
         add(nameField);
@@ -81,6 +86,12 @@ public class Login extends JFrame {
         loginButton.setBounds(900, 490, 500, 60);
         loginButton.setBackground(new Color(0, 128, 0));
         loginButton.setForeground(new Color(255, 255, 255));
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                attemptLogin();
+            }
+        });
         add(loginButton);
 
         JLabel text1 = new JLabel("Don't have an account, Please");
@@ -96,6 +107,44 @@ public class Login extends JFrame {
 
         setVisible(true);
     }
+    private void attemptLogin() {
+        String username = nameField.getText().trim();
+        String password = new String(passwordField.getPassword());
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in both name and password.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String query = "SELECT password FROM users WHERE username = ?";
+
+        try (Connection conn = con.getConnection();
+             PreparedStatement pstm = conn.prepareStatement(query)) {
+
+            pstm.setString(1, username);
+
+            try (ResultSet rs = pstm.executeQuery()) {
+                if (!rs.next() || !password.equals(rs.getString("password"))) {
+                    JOptionPane.showMessageDialog(this, "Invalid name or password.",
+                            "Login Failed", JOptionPane.ERROR_MESSAGE);
+                    passwordField.setText("");
+                    return;
+                }
+            }
+
+            JOptionPane.showMessageDialog(this, "Login Successful, welcome " + username + "!",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+            Main.openHome(username);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Login failed:\n" + e.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     public static void main(String[] args){
         new Login();
     }

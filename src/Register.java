@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 public class Register extends JFrame {
@@ -160,7 +161,7 @@ public class Register extends JFrame {
         if(nameField.getText().isEmpty()|| numberField.getText().isEmpty() ||
             emailField.getText().isEmpty() || districtField.getText().isEmpty() ||
             passwordField.getText().isEmpty() || confirmPasswordField.getText().isEmpty()
-            || dateChooser==null ||(!male.isSelected() && !Female.isSelected())){
+            || dateChooser.getDate()==null ||(!male.isSelected() && !Female.isSelected())){
 
             JOptionPane.showMessageDialog(this, "Please Fill All Fields", "Error", JOptionPane.ERROR_MESSAGE);
 
@@ -185,11 +186,11 @@ public class Register extends JFrame {
         String password = passwordField.getText();
 
         //Database connection
-        Connection conn = con.getConnection();
         String query = "INSERT INTO users(username, dob, gender, mobile, email, district, password)VALUES(?,?,?,?,?,?,?)";
 
-        try{
-            PreparedStatement pstm = conn.prepareStatement(query);
+        try (Connection conn = con.getConnection();
+             PreparedStatement pstm = conn.prepareStatement(query)) {
+
             pstm.setString(1, username);
             pstm.setString(2, dob);
             pstm.setString(3, gender);
@@ -203,9 +204,10 @@ public class Register extends JFrame {
             dispose();
             new Login();
 
-
-        }catch (Exception e){
-            e.printStackTrace();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Registration failed:\n" + e.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
         }
 
     }
