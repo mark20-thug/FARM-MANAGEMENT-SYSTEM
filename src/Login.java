@@ -144,6 +144,7 @@ public class Login extends JFrame {
                     "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    }
 
     public static void main(String[] args){
         new Login();
