@@ -1,11 +1,15 @@
+
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
@@ -150,6 +154,14 @@ public class Register extends JFrame {
     text2.setBounds(1100, 1080,200, 30);
     text2.setFont(new Font("RAILWAY", Font.PLAIN, 30));
     text2.setForeground(new Color(0, 40, 255));
+    text2.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    text2.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            dispose();
+            new Login();
+        }
+    });
     add(text2);
 
         setVisible(true);
@@ -158,8 +170,8 @@ public class Register extends JFrame {
     //method to validate input field
 
     private boolean validateField(){
-        if(nameField.getText().isEmpty()|| numberField.getText().isEmpty() ||
-            emailField.getText().isEmpty() || districtField.getText().isEmpty() ||
+        if(nameField.getText().trim().isEmpty()|| numberField.getText().trim().isEmpty() ||
+            emailField.getText().trim().isEmpty() || districtField.getText().trim().isEmpty() ||
             passwordField.getText().isEmpty() || confirmPasswordField.getText().isEmpty()
             || dateChooser.getDate()==null ||(!male.isSelected() && !Female.isSelected())){
 
@@ -176,34 +188,54 @@ public class Register extends JFrame {
     }
 // methode store data in the database
     private void storeInDb(){
-        String username = nameField.getText();
+        String username = nameField.getText().trim();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dob = sdf.format(dateChooser.getDate());
         String gender = male.isSelected()? "male" : "female";
-        String mobile = numberField.getText();
-        String email = emailField.getText();
-        String district = districtField.getText();
-        String password = passwordField.getText();
+        String mobile = numberField.getText().trim();
+        String email = emailField.getText().trim();
+        String district = districtField.getText().trim();
+        String encodedPassword = PasswordHasher.encode(passwordField.getText());
 
-        //Database connection
-        String query = "INSERT INTO users(username, dob, gender, mobile, email, district, password)VALUES(?,?,?,?,?,?,?)";
+        String duplicateQuery = "SELECT id FROM users WHERE email = ? OR mobile = ?";
 
-        try (Connection conn = con.getConnection();
-             PreparedStatement pstm = conn.prepareStatement(query)) {
+        try (Connection conn = con.getConnection()) {
 
-            pstm.setString(1, username);
-            pstm.setString(2, dob);
-            pstm.setString(3, gender);
-            pstm.setString(4, mobile);
-            pstm.setString(5, email);
-            pstm.setString(6, district);
-            pstm.setString(7, password);
+            try (PreparedStatement check = conn.prepareStatement(duplicateQuery)) {
+                check.setString(1, email);
+                check.setString(2, mobile);
+                try (java.sql.ResultSet rs = check.executeQuery()) {
+                    if (rs.next()) {
+                        JOptionPane.showMessageDialog(this,
+                                "An account with this email or phone number already exists.",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+            }
 
-            pstm.executeUpdate();
+            String query = "INSERT INTO users(username, dob, gender, mobile, email, district, password)VALUES(?,?,?,?,?,?,?)";
+
+            try (PreparedStatement pstm = conn.prepareStatement(query)) {
+                pstm.setString(1, username);
+                pstm.setString(2, dob);
+                pstm.setString(3, gender);
+                pstm.setString(4, mobile);
+                pstm.setString(5, email);
+                pstm.setString(6, district);
+                pstm.setString(7, encodedPassword);
+
+                pstm.executeUpdate();
+            }
+
             JOptionPane.showMessageDialog(this, "Registration Successful","Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
             new Login();
 
+        } catch (SQLIntegrityConstraintViolationException e) {
+            JOptionPane.showMessageDialog(this,
+                    "An account with this email or phone number already exists.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                     "Registration failed:\n" + e.getMessage(),

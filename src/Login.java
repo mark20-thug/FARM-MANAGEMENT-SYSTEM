@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,7 +33,7 @@ public class Login extends JFrame {
 
 //heading text
         JLabel heading = new JLabel("FARM MANAGEMENT SYSTEM");
-        heading.setBounds(165, 20, 1500, 100);
+        heading.setBounds(145, 20, 1500, 100);
         heading.setFont(new Font("Railway", Font.BOLD, 76));
         add(heading);
 //login text
@@ -103,6 +105,14 @@ public class Login extends JFrame {
         text2.setBounds(1160, 590, 300, 44);
         text2.setFont(new Font("Railway", Font.PLAIN, 36));
         text2.setForeground(new Color(0, 62, 250, 255));
+        text2.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        text2.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                dispose();
+                new Register();
+            }
+        });
         add(text2);
 
         setVisible(true);
@@ -124,13 +134,27 @@ public class Login extends JFrame {
 
             pstm.setString(1, username);
 
+            boolean matched = false;
             try (ResultSet rs = pstm.executeQuery()) {
-                if (!rs.next() || !password.equals(rs.getString("password"))) {
-                    JOptionPane.showMessageDialog(this, "Invalid name or password.",
-                            "Login Failed", JOptionPane.ERROR_MESSAGE);
-                    passwordField.setText("");
-                    return;
+                while (rs.next()) {
+                    String stored = rs.getString("password");
+                    if (PasswordHasher.isEncoded(stored)) {
+                        if (PasswordHasher.verify(password, stored)) {
+                            matched = true;
+                            break;
+                        }
+                    } else if (password.equals(stored)) {
+                        matched = true;
+                        break;
+                    }
                 }
+            }
+
+            if (!matched) {
+                JOptionPane.showMessageDialog(this, "Invalid name or password.",
+                        "Login Failed", JOptionPane.ERROR_MESSAGE);
+                passwordField.setText("");
+                return;
             }
 
             JOptionPane.showMessageDialog(this, "Login Successful, welcome " + username + "!",
@@ -143,7 +167,6 @@ public class Login extends JFrame {
                     "Login failed:\n" + e.getMessage(),
                     "Database Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
     }
 
     public static void main(String[] args){
