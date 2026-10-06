@@ -1,13 +1,16 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CropPlanPage extends JFrame {
@@ -16,6 +19,33 @@ public class CropPlanPage extends JFrame {
     String crop;
     double acres;
     Dashboard back;
+
+    //expense rows read from the MySQL expenses table (null = could not be read)
+    private List<Expense> expenses;
+
+    static class Expense {
+        final String type;
+        final double costPerAcre;
+
+        Expense(String type, double costPerAcre) {
+            this.type = type;
+            this.costPerAcre = costPerAcre;
+        }
+    }
+
+    //cost_per_acre seed values used the first time a crop has no expense rows
+    static final Map<String, String[][]> EXPENSE_SEED = new HashMap<>();
+
+    static {
+        EXPENSE_SEED.put("Wheat", new String[][]{
+                {"Seed", "50"}, {"Fertilizer", "120"}, {"Labor", "80"}, {"Equipment", "40"}});
+        EXPENSE_SEED.put("Rice", new String[][]{
+                {"Seed", "60"}, {"Fertilizer", "150"}, {"Labor", "100"}, {"Equipment", "50"}});
+        EXPENSE_SEED.put("Soybean", new String[][]{
+                {"Seed", "40"}, {"Fertilizer", "90"}, {"Labor", "70"}, {"Equipment", "35"}});
+        EXPENSE_SEED.put("Sugarcane", new String[][]{
+                {"Seed", "200"}, {"Fertilizer", "250"}, {"Labor", "180"}, {"Equipment", "90"}});
+    }
 
     static class CropInfo {
         String variety, planting, harvest, rotation, irrigation, pests;
@@ -86,6 +116,9 @@ public class CropPlanPage extends JFrame {
         this.acres = acres;
         this.back = back;
 
+        seedExpenses();
+        loadExpenses();
+
         setLayout(null);
         setTitle("Farm_Management_System");
         setSize(1600, 1200);
@@ -97,14 +130,14 @@ public class CropPlanPage extends JFrame {
 
     //heading
         JLabel heading = new JLabel("CROP PLAN");
-        heading.setBounds(550, 30, 900, 95);
+        heading.setBounds(550, 15, 900, 95);
         heading.setFont(new Font("Railway", Font.BOLD, 76));
         add(heading);
 
     //summary table
         JTable summaryTable = buildSummaryTable(info);
         JScrollPane tableScroll = new JScrollPane(summaryTable);
-        tableScroll.setBounds(550, 145, 610, 200);
+        tableScroll.setBounds(550, 125, 610, 190);
         tableScroll.setBorder(BorderFactory.createLineBorder(new Color(0, 100, 0), 2));
         tableScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         tableScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -113,41 +146,54 @@ public class CropPlanPage extends JFrame {
     //summary chart
         FertilizerChart chart = new FertilizerChart(
                 info.n * acres, info.p * acres, info.k * acres, fmt(acres) + " acres (kg)");
-        chart.setBounds(1180, 145, 350, 200);
+        chart.setBounds(1180, 125, 350, 190);
         add(chart);
 
     //section 1 - crop planning
-        JLabel s1 = sectionTitle("Optimize Crop Planning", 365);
-        JTextArea b1 = sectionBody(
-                "Seed variety: " + info.variety + "\n" +
-                "Planting window: " + info.planting + "\n" +
-                "Harvest window: " + info.harvest + "\n" +
-                "Rotation / intercropping: " + info.rotation,
-                405, 185);
+        JLabel s1 = sectionTitle("Optimize Crop Planning", 330);
+        JScrollPane planScroll = new JScrollPane(infoTable(
+                new String[]{"Field", "Details"},
+                new String[][]{
+                        {"Seed variety", info.variety},
+                        {"Planting window", info.planting},
+                        {"Harvest window", info.harvest},
+                        {"Rotation / intercropping", info.rotation}},
+                new int[]{230, 750}));
+        planScroll.setBounds(550, 365, 980, 170);
+        planScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(s1);
-        add(b1);
+        add(planScroll);
 
     //section 2 - resources
-        JLabel s2 = sectionTitle("Manage Resources Efficiently", 610);
-        JTextArea b2 = sectionBody(
-                "Irrigation: " + info.irrigation + "\n" +
-                "Fertilizer per acre (rates): N " + fmt(info.n) + " kg, P " + fmt(info.p) +
-                        " kg, K " + fmt(info.k) + " kg - totals are shown in the summary table above.\n" +
-                "Pest control: " + info.pests + "\n" +
-                "Weather / soil: check soil moisture and the forecast before every irrigation or spray, and log field observations weekly.",
-                650, 185);
+        JLabel s2 = sectionTitle("Manage Resources Efficiently", 550);
+        JScrollPane resourceScroll = new JScrollPane(infoTable(
+                new String[]{"Resource", "Details"},
+                new String[][]{
+                        {"Irrigation", info.irrigation},
+                        {"Fertilizer per acre", "N " + fmt(info.n) + " kg, P " + fmt(info.p)
+                                + " kg, K " + fmt(info.k) + " kg - totals are in the summary table above."},
+                        {"Pest control", info.pests},
+                        {"Weather / soil", "Check soil moisture and the forecast before every irrigation or spray; log field observations weekly."}},
+                new int[]{210, 770}));
+        resourceScroll.setBounds(550, 585, 980, 170);
+        resourceScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(s2);
-        add(b2);
+        add(resourceScroll);
 
-    //section 3 - financials
-        JLabel s3 = sectionTitle("Track Financial Performance", 855);
-        JTextArea b3 = sectionBody(financeText(info), 895, 155);
+    //section 3 - expenses read from MySQL, shown in Ugandan shillings
+        JLabel s3 = sectionTitle("Track Financial Performance (UGX)", 770);
+        JScrollPane expenseScroll = new JScrollPane(infoTable(
+                new String[]{"Item", "Value", "UGX for this plan"},
+                expenseRows(),
+                new int[]{150, 540, 290}));
+        expenseScroll.setBounds(550, 810, 980, 240);
+        expenseScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(s3);
-        add(b3);
+        add(expenseScroll);
 
     //button Back
         JButton backButton = new JButton("BACK");
-        backButton.setBounds(550, 1060, 450, 50);
+        backButton.setBounds(550, 1066, 450, 50);
         backButton.setFont(new Font("Railway", Font.PLAIN, 30));
         backButton.setForeground(new Color(255, 255, 255));
         backButton.setBackground(new Color(0, 40, 180));
@@ -159,7 +205,7 @@ public class CropPlanPage extends JFrame {
 
     //button Logout
         JButton logoutButton = new JButton("LOGOUT");
-        logoutButton.setBounds(1050, 1060, 450, 50);
+        logoutButton.setBounds(1050, 1066, 450, 50);
         logoutButton.setFont(new Font("Railway", Font.PLAIN, 30));
         logoutButton.setForeground(new Color(255, 255, 255));
         logoutButton.setBackground(new Color(128, 0, 0));
@@ -170,11 +216,21 @@ public class CropPlanPage extends JFrame {
         });
         add(logoutButton);
 
+    //keep buttons pinned to the bottom whenever the window is laid out or resized
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int btnY = getContentPane().getHeight() - 60;
+                backButton.setBounds(550, btnY, 450, 50);
+                logoutButton.setBounds(1050, btnY, 450, 50);
+            }
+        });
+
         setVisible(true);
         storeInDb();
     }
 
-    //summary table with crop, acreage and computed key figures
+    //summary table with crop, acreage, computed key figures and recorded expenses
     private JTable buildSummaryTable(CropInfo info) {
         String[][] rows = {
                 {"Crop", crop},
@@ -193,17 +249,10 @@ public class CropPlanPage extends JFrame {
                 return false;
             }
         };
-        table.setFont(new Font("Railway", Font.PLAIN, 20));
-        table.setRowHeight(26);
-        table.setFocusable(false);
-        table.setShowGrid(true);
-        table.setGridColor(new Color(200, 200, 200));
-        table.setIntercellSpacing(new Dimension(1, 1));
-        table.setSelectionBackground(new Color(232, 245, 233));
-        table.setSelectionForeground(Color.BLACK);
-        table.getColumnModel().getColumn(0).setPreferredWidth(210);
-        table.getColumnModel().getColumn(1).setPreferredWidth(390);
-        table.setPreferredScrollableViewportSize(new Dimension(600, 190));
+        table.getColumnModel().getColumn(0).setPreferredWidth(180);
+        table.getColumnModel().getColumn(1).setPreferredWidth(420);
+        table.setPreferredScrollableViewportSize(new Dimension(600, 149));
+        styleTable(table, 17, 24);
 
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
@@ -218,13 +267,104 @@ public class CropPlanPage extends JFrame {
             }
         };
         table.setDefaultRenderer(Object.class, renderer);
+        return table;
+    }
+
+    //two or three column table for a section; cell text wraps and rows grow to fit
+    private JTable infoTable(String[] columns, String[][] rows, int[] widths) {
+        JTable table = new JTable(rows, columns) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+
+            @Override
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                FontMetrics fm = getFontMetrics(getFont());
+                int needed = 0;
+                for (int col = 0; col < getColumnCount(); col++) {
+                    Object v = getValueAt(row, col);
+                    int h = WrapCellRenderer.neededHeight(
+                            v == null ? "" : v.toString(), fm, getCellRect(row, col, true).width);
+                    needed = Math.max(needed, h);
+                }
+                if (getRowHeight(row) < needed) {
+                    setRowHeight(row, needed);
+                }
+                return c;
+            }
+        };
+        for (int i = 0; i < widths.length && i < table.getColumnModel().getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+        }
+        styleTable(table, 16, 24);
+        table.setDefaultRenderer(Object.class, new WrapCellRenderer());
+        return table;
+    }
+
+    //shared styling: green header, zebra rows, read-only
+    private void styleTable(JTable table, int fontSize, int rowHeight) {
+        table.setFont(new Font("Railway", Font.PLAIN, fontSize));
+        table.setRowHeight(rowHeight);
+        table.setFocusable(false);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(200, 200, 200));
+        table.setIntercellSpacing(new Dimension(1, 1));
+        table.setSelectionBackground(new Color(232, 245, 233));
+        table.setSelectionForeground(Color.BLACK);
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Railway", Font.BOLD, 20));
+        int headerWidth = 0;
+        for (javax.swing.table.TableColumn col :
+                java.util.Collections.list(table.getColumnModel().getColumns())) {
+            headerWidth += col.getPreferredWidth();
+        }
+        header.setFont(new Font("Railway", Font.BOLD, fontSize));
         header.setBackground(new Color(0, 100, 0));
         header.setForeground(Color.WHITE);
-        header.setPreferredSize(new Dimension(600, 33));
-        return table;
+        header.setPreferredSize(new Dimension(headerWidth, 30));
+    }
+
+    //greedy word wrap shared by measuring and painting so they always agree
+    static List<String> wrapText(String text, FontMetrics fm, int maxWidth) {
+        List<String> lines = new ArrayList<>();
+        if (text == null || text.isEmpty()) {
+            lines.add("");
+            return lines;
+        }
+        if (maxWidth < 1) {
+            lines.add(text);
+            return lines;
+        }
+        StringBuilder cur = new StringBuilder();
+        for (String word : text.split(" ")) {
+            if (word.isEmpty()) continue;
+            String test = cur.length() == 0 ? word : cur + " " + word;
+            if (fm.stringWidth(test) <= maxWidth) {
+                cur.setLength(0);
+                cur.append(test);
+                continue;
+            }
+            if (cur.length() > 0) {
+                lines.add(cur.toString());
+                cur.setLength(0);
+            }
+            if (fm.stringWidth(word) <= maxWidth) {
+                cur.append(word);
+                continue;
+            }
+            for (char ch : word.toCharArray()) {          //force-break an over-long word
+                if (cur.length() > 0 && fm.stringWidth(cur.toString() + ch) > maxWidth) {
+                    lines.add(cur.toString());
+                    cur.setLength(0);
+                }
+                cur.append(ch);
+            }
+        }
+        if (cur.length() > 0) lines.add(cur.toString());
+        if (lines.isEmpty()) lines.add("");
+        return lines;
     }
 
     private JLabel sectionTitle(String text, int y) {
@@ -235,45 +375,103 @@ public class CropPlanPage extends JFrame {
         return title;
     }
 
-    private JTextArea sectionBody(String text, int y, int height) {
-        JTextArea area = new JTextArea(text);
-        area.setBounds(550, y, 980, height);
-        area.setFont(new Font("Railway", Font.PLAIN, 18));
-        area.setLineWrap(true);
-        area.setWrapStyleWord(true);
-        area.setEditable(false);
-        area.setOpaque(false);
-        area.setFocusable(false);
-        area.setCursor(Cursor.getDefaultCursor());
-        return area;
+    //expense rows for the financial table: every amount in Ugandan shillings
+    private String[][] expenseRows() {
+        if (expenses == null) {
+            return new String[][]{
+                    {"Cost data unavailable", "Expense records could not be read from MySQL", ""}};
+        }
+        if (expenses.isEmpty()) {
+            return new String[][]{
+                    {"No expense records", "Add seed, fertilizer, labor and equipment costs for "
+                            + crop + " to the expenses table", ""}};
+        }
+
+        String[][] rows = new String[expenses.size() + 3][3];
+        int i = 0;
+        for (Expense e : expenses) {
+            rows[i][0] = e.type;
+            rows[i][1] = ugx(e.costPerAcre) + " per acre";
+            rows[i][2] = ugx(e.costPerAcre * acres);
+            i++;
+        }
+        double perAcre = costPerAcre();
+        rows[i][0] = "Total cost";
+        rows[i][1] = ugx(perAcre) + " per acre";
+        rows[i][2] = ugx(perAcre * acres);
+        rows[i + 1][0] = "Gross return";
+        rows[i + 1][1] = "Estimated yield (summary table) x price/tonne";
+        rows[i + 1][2] = "";
+        rows[i + 2][0] = "ROI";
+        rows[i + 2][1] = "(Gross return - total cost) / total cost x 100";
+        rows[i + 2][2] = "";
+        return rows;
     }
 
-    private String financeText(CropInfo info) {
-        int count = -1;
+    //per-acre cost summed across every expense row recorded for this crop
+    private double costPerAcre() {
+        double sum = 0;
+        for (Expense e : expenses) sum += e.costPerAcre;
+        return sum;
+    }
+
+    //create the expenses table if missing and seed rows for this crop when it has none
+    private void seedExpenses() {
+        String[][] rows = EXPENSE_SEED.get(crop);
+        if (rows == null) return;
+
+        String ddl = "CREATE TABLE IF NOT EXISTS expenses ("
+                + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                + "crop_name VARCHAR(100) NOT NULL, "
+                + "expense_type VARCHAR(100) NOT NULL, "
+                + "cost_per_acre DOUBLE NOT NULL)";
+
         try (Connection conn = con.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "SELECT COUNT(*) FROM expenses WHERE crop_name = ?")) {
-            ps.setString(1, crop);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) count = rs.getInt(1);
+             Statement st = conn.createStatement()) {
+            st.execute(ddl);
+
+            int existing = 0;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT COUNT(*) FROM expenses WHERE crop_name = ?")) {
+                ps.setString(1, crop);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) existing = rs.getInt(1);
+                }
+            }
+            if (existing > 0) return;
+
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO expenses(crop_name, expense_type, cost_per_acre) VALUES(?,?,?)")) {
+                for (String[] row : rows) {
+                    ps.setString(1, crop);
+                    ps.setString(2, row[0]);
+                    ps.setDouble(3, Double.parseDouble(row[1]));
+                    ps.addBatch();
+                }
+                ps.executeBatch();
             }
         } catch (SQLException e) {
-            count = -1;
+            JOptionPane.showMessageDialog(this,
+                    "Expenses could not be initialised:\n" + e.getMessage(),
+                    "Database Error", JOptionPane.WARNING_MESSAGE);
         }
+    }
 
-        if (count > 0) {
-            return "Cost records: " + count + " expense type(s) registered for " + crop + ".\n"
-                    + "Gross return = estimated yield (see summary table) x your local price per tonne.\n"
-                    + "ROI = (gross return - total cost) / total cost x 100.\n"
-                    + "Review cash flow and compare profitability against other crops before each season.";
-        } else if (count == 0) {
-            return "No expense records for " + crop
-                    + " yet - add seed, fertilizer, labor and equipment costs to the expenses table.\n"
-                    + "Once costs are recorded, totals and ROI appear here and in the summary table.\n"
-                    + "Centralizing costs lets you manage cash flow and analyze return on investment per crop.";
+    //read every expense row for this crop from MySQL
+    private void loadExpenses() {
+        expenses = new ArrayList<>();
+        try (Connection conn = con.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT expense_type, cost_per_acre FROM expenses WHERE crop_name = ? ORDER BY id")) {
+            ps.setString(1, crop);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    expenses.add(new Expense(rs.getString(1), rs.getDouble(2)));
+                }
+            }
+        } catch (SQLException e) {
+            expenses = null;
         }
-        return "Cost data is unavailable right now - expense records could not be read.\n"
-                + "Keep records of expenses, labor and equipment to calculate profitability, cash flow and ROI.";
     }
 
     //method to save this plan in the database
@@ -305,6 +503,11 @@ public class CropPlanPage extends JFrame {
     static String fmt(double v) {
         if (v == Math.rint(v)) return String.valueOf((long) v);
         return String.format("%.2f", v);
+    }
+
+    //money is always shown in Ugandan shillings with thousands separators
+    static String ugx(double v) {
+        return "UGX " + String.format("%,.0f", v);
     }
 
     public static void main(String[] args) {
@@ -366,5 +569,51 @@ class FertilizerChart extends JPanel {
             g2.drawString(CropPlanPage.fmt(vals[i]), xs[i] + barW / 2 - 14, y - 7);
             g2.drawString(names[i], xs[i] + barW / 2 - 7, baseY + 22);
         }
+    }
+}
+
+//cell renderer that word-wraps text so long values are never clipped
+class WrapCellRenderer extends JPanel implements TableCellRenderer {
+    static final int PAD = 8;
+    static final int V_PAD = 2;
+
+    private String text = "";
+
+    WrapCellRenderer() {
+        setOpaque(true);
+    }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        text = value == null ? "" : value.toString();
+        setFont(table.getFont());
+        setForeground(Color.BLACK);
+        setBackground(isSelected ? table.getSelectionBackground()
+                : row % 2 == 0 ? Color.WHITE : new Color(232, 245, 233));
+        return this;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        FontMetrics fm = g2.getFontMetrics();
+        List<String> lines = CropPlanPage.wrapText(text, fm, getWidth() - 2 * PAD);
+        int blockH = lines.size() * fm.getHeight();
+        int y = Math.max(V_PAD, (getHeight() - blockH) / 2) + fm.getAscent();
+        for (String line : lines) {
+            g2.drawString(line, PAD, y);
+            y += fm.getHeight();
+        }
+        g2.dispose();
+    }
+
+    //height a cell needs to show this text fully wrapped
+    static int neededHeight(String text, FontMetrics fm, int cellWidth) {
+        List<String> lines = CropPlanPage.wrapText(text, fm, cellWidth - 2 * PAD);
+        return lines.size() * fm.getHeight() + 2 * V_PAD;
     }
 }
