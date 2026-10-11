@@ -38,13 +38,13 @@ public class CropPlanPage extends JFrame {
 
     static {
         EXPENSE_SEED.put("Wheat", new String[][]{
-                {"Seed", "50"}, {"Fertilizer", "120"}, {"Labor", "80"}, {"Equipment", "40"}});
+                {"Seed", "5000"}, {"Fertilizer", "12000"}, {"Labor", "800000"}, {"Equipment", "40000"}});
         EXPENSE_SEED.put("Rice", new String[][]{
-                {"Seed", "60"}, {"Fertilizer", "150"}, {"Labor", "100"}, {"Equipment", "50"}});
+                {"Seed", "6000"}, {"Fertilizer", "150000"}, {"Labor", "100000"}, {"Equipment", "500000"}});
         EXPENSE_SEED.put("Soybean", new String[][]{
-                {"Seed", "40"}, {"Fertilizer", "90"}, {"Labor", "70"}, {"Equipment", "35"}});
+                {"Seed", "4000"}, {"Fertilizer", "90000"}, {"Labor", "70000"}, {"Equipment", "350000"}});
         EXPENSE_SEED.put("Sugarcane", new String[][]{
-                {"Seed", "200"}, {"Fertilizer", "250"}, {"Labor", "180"}, {"Equipment", "90"}});
+                {"Seed", "200"}, {"Fertilizer", "2500"}, {"Labor", "18000"}, {"Equipment", "900000"}});
     }
 
     static class CropInfo {
@@ -415,7 +415,7 @@ public class CropPlanPage extends JFrame {
         return sum;
     }
 
-    //create the expenses table if missing and seed rows for this crop when it has none
+    //create the expenses table if missing and keep its rows in step with EXPENSE_SEED
     private void seedExpenses() {
         String[][] rows = EXPENSE_SEED.get(crop);
         if (rows == null) return;
@@ -430,25 +430,37 @@ public class CropPlanPage extends JFrame {
              Statement st = conn.createStatement()) {
             st.execute(ddl);
 
-            int existing = 0;
+            Map<String, Double> existing = new HashMap<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT COUNT(*) FROM expenses WHERE crop_name = ?")) {
+                    "SELECT expense_type, cost_per_acre FROM expenses WHERE crop_name = ?")) {
                 ps.setString(1, crop);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) existing = rs.getInt(1);
+                    while (rs.next()) {
+                        existing.put(rs.getString(1), rs.getDouble(2));
+                    }
                 }
             }
-            if (existing > 0) return;
 
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO expenses(crop_name, expense_type, cost_per_acre) VALUES(?,?,?)")) {
+            try (PreparedStatement update = conn.prepareStatement(
+                    "UPDATE expenses SET cost_per_acre = ? WHERE crop_name = ? AND expense_type = ?");
+                 PreparedStatement insert = conn.prepareStatement(
+                         "INSERT INTO expenses(crop_name, expense_type, cost_per_acre) VALUES(?,?,?)")) {
                 for (String[] row : rows) {
-                    ps.setString(1, crop);
-                    ps.setString(2, row[0]);
-                    ps.setDouble(3, Double.parseDouble(row[1]));
-                    ps.addBatch();
+                    String type = row[0];
+                    double cost = Double.parseDouble(row[1]);
+                    Double current = existing.get(type);
+                    if (current == null) {
+                        insert.setString(1, crop);
+                        insert.setString(2, type);
+                        insert.setDouble(3, cost);
+                        insert.executeUpdate();
+                    } else if (Double.compare(current, cost) != 0) {
+                        update.setDouble(1, cost);
+                        update.setString(2, crop);
+                        update.setString(3, type);
+                        update.executeUpdate();
+                    }
                 }
-                ps.executeBatch();
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
