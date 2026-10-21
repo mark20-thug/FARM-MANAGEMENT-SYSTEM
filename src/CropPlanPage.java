@@ -10,8 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CropPlanPage extends JFrame {
 
@@ -121,7 +123,7 @@ public class CropPlanPage extends JFrame {
 
         setLayout(null);
         setTitle("Farm_Management_System");
-        setSize(1600, 1200);
+        setSize(Ui.windowSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -130,14 +132,14 @@ public class CropPlanPage extends JFrame {
 
     //heading
         JLabel heading = new JLabel("CROP PLAN");
-        heading.setBounds(550, 15, 900, 95);
-        heading.setFont(new Font("Railway", Font.BOLD, 76));
+        Ui.bounds(heading, 550, 15, 900, 95);
+        heading.setFont(Ui.font(Font.BOLD, 76));
         add(heading);
 
     //summary table
         JTable summaryTable = buildSummaryTable(info);
         JScrollPane tableScroll = new JScrollPane(summaryTable);
-        tableScroll.setBounds(550, 125, 610, 190);
+        Ui.bounds(tableScroll, 550, 125, 610, 190);
         tableScroll.setBorder(BorderFactory.createLineBorder(new Color(0, 100, 0), 2));
         tableScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         tableScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -146,7 +148,7 @@ public class CropPlanPage extends JFrame {
     //summary chart
         FertilizerChart chart = new FertilizerChart(
                 info.n * acres, info.p * acres, info.k * acres, fmt(acres) + " acres (kg)");
-        chart.setBounds(1180, 125, 350, 190);
+        chart.setBounds(Ui.s(1180), Ui.s(125), Ui.s(350), Ui.s(190));
         add(chart);
 
     //section 1 - crop planning
@@ -159,7 +161,7 @@ public class CropPlanPage extends JFrame {
                         {"Harvest window", info.harvest},
                         {"Rotation / intercropping", info.rotation}},
                 new int[]{230, 750}));
-        planScroll.setBounds(550, 365, 980, 170);
+        planScroll.setBounds(Ui.s(550), Ui.s(365), Ui.s(980), Ui.s(170));
         planScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(s1);
         add(planScroll);
@@ -175,7 +177,7 @@ public class CropPlanPage extends JFrame {
                         {"Pest control", info.pests},
                         {"Weather / soil", "Check soil moisture and the forecast before every irrigation or spray; log field observations weekly."}},
                 new int[]{210, 770}));
-        resourceScroll.setBounds(550, 585, 980, 170);
+        resourceScroll.setBounds(Ui.s(550), Ui.s(585), Ui.s(980), Ui.s(170));
         resourceScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(s2);
         add(resourceScroll);
@@ -186,15 +188,15 @@ public class CropPlanPage extends JFrame {
                 new String[]{"Item", "Value", "UGX for this plan"},
                 expenseRows(),
                 new int[]{150, 540, 290}));
-        expenseScroll.setBounds(550, 810, 980, 240);
+        expenseScroll.setBounds(Ui.s(550), Ui.s(810), Ui.s(980), Ui.s(240));
         expenseScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(s3);
         add(expenseScroll);
 
     //button Back
         JButton backButton = new JButton("BACK");
-        backButton.setBounds(550, 1066, 450, 50);
-        backButton.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(backButton, 550, 1066, 450, 50);
+        backButton.setFont(Ui.font(Font.PLAIN, 30));
         backButton.setForeground(new Color(255, 255, 255));
         backButton.setBackground(new Color(0, 40, 180));
         backButton.addActionListener(e -> {
@@ -205,8 +207,8 @@ public class CropPlanPage extends JFrame {
 
     //button Logout
         JButton logoutButton = new JButton("LOGOUT");
-        logoutButton.setBounds(1050, 1066, 450, 50);
-        logoutButton.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(logoutButton, 1050, 1066, 450, 50);
+        logoutButton.setFont(Ui.font(Font.PLAIN, 30));
         logoutButton.setForeground(new Color(255, 255, 255));
         logoutButton.setBackground(new Color(128, 0, 0));
         logoutButton.addActionListener(e -> {
@@ -220,9 +222,9 @@ public class CropPlanPage extends JFrame {
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
-                int btnY = getContentPane().getHeight() - 60;
-                backButton.setBounds(550, btnY, 450, 50);
-                logoutButton.setBounds(1050, btnY, 450, 50);
+                int btnY = getContentPane().getHeight() - Ui.s(60);
+                backButton.setBounds(Ui.s(550), btnY, Ui.s(450), Ui.s(50));
+                logoutButton.setBounds(Ui.s(1050), btnY, Ui.s(450), Ui.s(50));
             }
         });
 
@@ -249,9 +251,9 @@ public class CropPlanPage extends JFrame {
                 return false;
             }
         };
-        table.getColumnModel().getColumn(0).setPreferredWidth(180);
-        table.getColumnModel().getColumn(1).setPreferredWidth(420);
-        table.setPreferredScrollableViewportSize(new Dimension(600, 149));
+        table.getColumnModel().getColumn(0).setPreferredWidth(Ui.s(180));
+        table.getColumnModel().getColumn(1).setPreferredWidth(Ui.s(420));
+        table.setPreferredScrollableViewportSize(new Dimension(Ui.s(600), Ui.s(149)));
         styleTable(table, 17, 24);
 
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
@@ -262,7 +264,8 @@ public class CropPlanPage extends JFrame {
                         table, value, isSelected, hasFocus, row, column);
                 c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(232, 245, 233));
                 c.setForeground(Color.BLACK);
-                ((JLabel) c).setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
+                ((JLabel) c).setBorder(BorderFactory.createEmptyBorder(
+                        Ui.s(2), Ui.s(8), Ui.s(2), Ui.s(8)));
                 return c;
             }
         };
@@ -296,17 +299,18 @@ public class CropPlanPage extends JFrame {
             }
         };
         for (int i = 0; i < widths.length && i < table.getColumnModel().getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+            table.getColumnModel().getColumn(i).setPreferredWidth(Ui.s(widths[i]));
         }
         styleTable(table, 16, 24);
         table.setDefaultRenderer(Object.class, new WrapCellRenderer());
         return table;
     }
 
-    //shared styling: green header, zebra rows, read-only
+    //shared styling: green header, zebra rows, read-only; fontSize and
+    //rowHeight are design measurements and are scaled for this screen
     private void styleTable(JTable table, int fontSize, int rowHeight) {
-        table.setFont(new Font("Railway", Font.PLAIN, fontSize));
-        table.setRowHeight(rowHeight);
+        table.setFont(Ui.font(Font.PLAIN, fontSize));
+        table.setRowHeight(Ui.s(rowHeight));
         table.setFocusable(false);
         table.setShowGrid(true);
         table.setGridColor(new Color(200, 200, 200));
@@ -320,10 +324,10 @@ public class CropPlanPage extends JFrame {
                 java.util.Collections.list(table.getColumnModel().getColumns())) {
             headerWidth += col.getPreferredWidth();
         }
-        header.setFont(new Font("Railway", Font.BOLD, fontSize));
+        header.setFont(Ui.font(Font.BOLD, fontSize));
         header.setBackground(new Color(0, 100, 0));
         header.setForeground(Color.WHITE);
-        header.setPreferredSize(new Dimension(headerWidth, 30));
+        header.setPreferredSize(new Dimension(headerWidth, Ui.s(30)));
     }
 
     //greedy word wrap shared by measuring and painting so they always agree
@@ -369,8 +373,8 @@ public class CropPlanPage extends JFrame {
 
     private JLabel sectionTitle(String text, int y) {
         JLabel title = new JLabel(text);
-        title.setBounds(550, y, 980, 35);
-        title.setFont(new Font("Railway", Font.BOLD, 26));
+        Ui.bounds(title, 550, y, 980, 35);
+        title.setFont(Ui.font(Font.BOLD, 26));
         title.setForeground(new Color(0, 100, 0));
         return title;
     }
@@ -415,7 +419,9 @@ public class CropPlanPage extends JFrame {
         return sum;
     }
 
-    //create the expenses table if missing and keep its rows in step with EXPENSE_SEED
+    //create the expenses table if missing and add any seed rows that are absent.
+    //Rows that already exist are left exactly as they are, so cost figures you
+    //edit in MySQL are never reverted back to the seed values.
     private void seedExpenses() {
         String[][] rows = EXPENSE_SEED.get(crop);
         if (rows == null) return;
@@ -430,36 +436,26 @@ public class CropPlanPage extends JFrame {
              Statement st = conn.createStatement()) {
             st.execute(ddl);
 
-            Map<String, Double> existing = new HashMap<>();
+            Set<String> existing = new HashSet<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT expense_type, cost_per_acre FROM expenses WHERE crop_name = ?")) {
+                    "SELECT expense_type FROM expenses WHERE crop_name = ?")) {
                 ps.setString(1, crop);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        existing.put(rs.getString(1), rs.getDouble(2));
+                        existing.add(rs.getString(1));
                     }
                 }
             }
 
-            try (PreparedStatement update = conn.prepareStatement(
-                    "UPDATE expenses SET cost_per_acre = ? WHERE crop_name = ? AND expense_type = ?");
-                 PreparedStatement insert = conn.prepareStatement(
-                         "INSERT INTO expenses(crop_name, expense_type, cost_per_acre) VALUES(?,?,?)")) {
+            try (PreparedStatement insert = conn.prepareStatement(
+                    "INSERT INTO expenses(crop_name, expense_type, cost_per_acre) VALUES(?,?,?)")) {
                 for (String[] row : rows) {
                     String type = row[0];
-                    double cost = Double.parseDouble(row[1]);
-                    Double current = existing.get(type);
-                    if (current == null) {
-                        insert.setString(1, crop);
-                        insert.setString(2, type);
-                        insert.setDouble(3, cost);
-                        insert.executeUpdate();
-                    } else if (Double.compare(current, cost) != 0) {
-                        update.setDouble(1, cost);
-                        update.setString(2, crop);
-                        update.setString(3, type);
-                        update.executeUpdate();
-                    }
+                    if (existing.contains(type)) continue;   //keep whatever is already stored
+                    insert.setString(1, crop);
+                    insert.setString(2, type);
+                    insert.setDouble(3, Double.parseDouble(row[1]));
+                    insert.executeUpdate();
                 }
             }
         } catch (SQLException e) {
@@ -550,25 +546,25 @@ class FertilizerChart extends JPanel {
         int w = getWidth();
         int h = getHeight();
 
-        g2.setFont(new Font("Railway", Font.BOLD, 18));
+        g2.setFont(Ui.font(Font.BOLD, 18));
         g2.setColor(new Color(40, 40, 40));
-        g2.drawString("Fertilizer for " + caption, 16, 28);
+        g2.drawString("Fertilizer for " + caption, Ui.s(16), Ui.s(28));
 
-        int baseY = h - 34;
-        int topY = 52;
+        int baseY = h - Ui.s(34);
+        int topY = Ui.s(52);
         double max = Math.max(n, Math.max(p, k));
         if (max <= 0) max = 1;
 
         g2.setColor(new Color(180, 180, 180));
-        g2.drawLine(30, baseY, w - 15, baseY);
+        g2.drawLine(Ui.s(30), baseY, w - Ui.s(15), baseY);
 
-        int barW = 64;
-        int[] xs = {62, 148, 234};
+        int barW = Ui.s(64);
+        int[] xs = {Ui.s(62), Ui.s(148), Ui.s(234)};
         double[] vals = {n, p, k};
         Color[] colors = {new Color(33, 115, 240), new Color(0, 140, 0), new Color(220, 160, 0)};
         String[] names = {"N", "P", "K"};
 
-        g2.setFont(new Font("Railway", Font.BOLD, 16));
+        g2.setFont(Ui.font(Font.BOLD, 16));
         for (int i = 0; i < 3; i++) {
             int barH = (int) Math.round((baseY - topY) * (vals[i] / max));
             if (vals[i] > 0 && barH < 3) barH = 3;
@@ -578,16 +574,17 @@ class FertilizerChart extends JPanel {
                 g2.fillRect(xs[i], y, barW, barH);
             }
             g2.setColor(Color.BLACK);
-            g2.drawString(CropPlanPage.fmt(vals[i]), xs[i] + barW / 2 - 14, y - 7);
-            g2.drawString(names[i], xs[i] + barW / 2 - 7, baseY + 22);
+            g2.drawString(CropPlanPage.fmt(vals[i]),
+                    xs[i] + barW / 2 - Ui.s(14), y - Ui.s(7));
+            g2.drawString(names[i], xs[i] + barW / 2 - Ui.s(7), baseY + Ui.s(22));
         }
     }
 }
 
 //cell renderer that word-wraps text so long values are never clipped
 class WrapCellRenderer extends JPanel implements TableCellRenderer {
-    static final int PAD = 8;
-    static final int V_PAD = 2;
+    static final int PAD = Ui.s(8);
+    static final int V_PAD = Ui.s(2);
 
     private String text = "";
 

@@ -1,5 +1,10 @@
 # Copy this file to db.properties and fill in your own values.
 # db.properties is listed in .gitignore and is NOT committed to git.
+#
+# Do not use root here: on a default MariaDB/MySQL install root only accepts
+# socket logins, so the app cannot connect as root. Create a dedicated user:
+#   CREATE USER 'farm_app'@'localhost' IDENTIFIED BY 'your_password';
+#   GRANT ALL PRIVILEGES ON farm_management_system.* TO 'farm_app'@'localhost';
 url=jdbc:mysql://localhost:3306/farm_management_system
-username=root
+username=farm_app
 password=change_me

@@ -59,7 +59,7 @@ public class Dashboard extends JFrame {
         this.userName = userName;
         setLayout(null);
         setTitle("Farm_Management_System");
-        setSize(1600, 1200);
+        setSize(Ui.windowSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -102,29 +102,29 @@ public class Dashboard extends JFrame {
     private JButton dashButton, planButton, sideRefreshButton, logoutButton;
 
     private void layoutSidebar() {
-        sidebar.setBounds(0, 0, 470, getContentPane().getHeight());
+        sidebar.setBounds(0, 0, Ui.s(470), getContentPane().getHeight());
 
         if (imageLabel == null) {
             ImageIcon icon = new ImageIcon(getClass().getResource("images/images.jpeg"));
-            Image scaled = icon.getImage().getScaledInstance(280, 280, Image.SCALE_SMOOTH);
+            Image scaled = icon.getImage().getScaledInstance(Ui.s(280), Ui.s(280), Image.SCALE_SMOOTH);
             imageLabel = new JLabel(new ImageIcon(scaled));
             imageLabel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
             sidebar.add(imageLabel);
 
             sideTitle = new JLabel("<html><div style='text-align:center'>FARM MANAGEMENT<br>SYSTEM</div></html>");
-            sideTitle.setFont(new Font("Railway", Font.BOLD, 38));
+            sideTitle.setFont(Ui.font(Font.BOLD, 38));
             sideTitle.setForeground(Color.WHITE);
             sideTitle.setHorizontalAlignment(SwingConstants.CENTER);
             sidebar.add(sideTitle);
 
             welcomeLabel = new JLabel("<html><div style='text-align:center'>Welcome,<br>" + userName + "</div></html>");
-            welcomeLabel.setFont(new Font("Railway", Font.PLAIN, 26));
+            welcomeLabel.setFont(Ui.font(Font.PLAIN, 26));
             welcomeLabel.setForeground(Color.WHITE);
             welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
             sidebar.add(welcomeLabel);
 
             dateLabel = new JLabel(new SimpleDateFormat("EEEE, d MMMM yyyy").format(new Date()));
-            dateLabel.setFont(new Font("Railway", Font.PLAIN, 18));
+            dateLabel.setFont(Ui.font(Font.PLAIN, 18));
             dateLabel.setForeground(new Color(210, 235, 210));
             dateLabel.setHorizontalAlignment(SwingConstants.CENTER);
             sidebar.add(dateLabel);
@@ -152,23 +152,23 @@ public class Dashboard extends JFrame {
             sidebar.add(logoutButton);
 
             versionLabel = new JLabel("Farm Management System  -  version 1");
-            versionLabel.setFont(new Font("Railway", Font.PLAIN, 15));
+            versionLabel.setFont(Ui.font(Font.PLAIN, 15));
             versionLabel.setForeground(new Color(190, 225, 190));
             versionLabel.setHorizontalAlignment(SwingConstants.CENTER);
             sidebar.add(versionLabel);
         }
 
-        imageLabel.setBounds(85, 25, 280, 280);
-        sideTitle.setBounds(25, 330, 420, 110);
-        welcomeLabel.setBounds(25, 450, 420, 80);
-        dateLabel.setBounds(25, 535, 420, 32);
+        Ui.bounds(imageLabel, 85, 25, 280, 280);
+        Ui.bounds(sideTitle, 25, 330, 420, 110);
+        Ui.bounds(welcomeLabel, 25, 450, 420, 80);
+        Ui.bounds(dateLabel, 25, 535, 420, 32);
 
-        int y = 600;
+        int y = Ui.s(600);
         for (JButton b : new JButton[]{dashButton, planButton, sideRefreshButton, logoutButton}) {
-            b.setBounds(40, y, 390, 54);
-            y += 66;
+            b.setBounds(Ui.s(40), y, Ui.s(390), Ui.s(54));
+            y += Ui.s(66);
         }
-        versionLabel.setBounds(25, getContentPane().getHeight() - 45, 420, 30);
+        versionLabel.setBounds(Ui.s(25), getContentPane().getHeight() - Ui.s(45), Ui.s(420), Ui.s(30));
     }
 
     private JButton navButton(String text, boolean active) {
@@ -177,7 +177,7 @@ public class Dashboard extends JFrame {
 
     private JButton navButton(String text, boolean active, Color base) {
         JButton b = new JButton(text);
-        b.setFont(new Font("Railway", Font.PLAIN, 24));
+        b.setFont(Ui.font(Font.PLAIN, 24));
         b.setFocusPainted(false);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
         b.setForeground(active ? GREEN : Color.WHITE);
@@ -202,18 +202,18 @@ public class Dashboard extends JFrame {
 
     private void buildHeader() {
         headingLabel = new JLabel("FARM DASHBOARD");
-        headingLabel.setFont(new Font("Railway", Font.BOLD, 58));
+        headingLabel.setFont(Ui.font(Font.BOLD, 58));
         headingLabel.setForeground(new Color(30, 30, 30));
         add(headingLabel);
 
         JLabel subtitle = new JLabel("Plan, track and cost every acre from sowing to harvest.");
-        subtitle.setFont(new Font("Railway", Font.PLAIN, 24));
+        subtitle.setFont(Ui.font(Font.PLAIN, 24));
         subtitle.setForeground(GRAY);
         add(subtitle);
         subHeader = subtitle;
 
         refreshedLabel = new JLabel(" ");
-        refreshedLabel.setFont(new Font("Railway", Font.PLAIN, 18));
+        refreshedLabel.setFont(Ui.font(Font.PLAIN, 18));
         refreshedLabel.setForeground(GRAY);
         refreshedLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         add(refreshedLabel);
@@ -265,25 +265,25 @@ public class Dashboard extends JFrame {
         });
 
         JLabel cap = new JLabel(caption);
-        cap.setFont(new Font("Railway", Font.BOLD, 15));
+        cap.setFont(Ui.font(Font.BOLD, 15));
         cap.setForeground(GREEN);
-        cap.setBounds(14, 10, 217, 24);
+        Ui.bounds(cap, 14, 10, 217, 24);
         card.add(cap);
 
         JLabel value = new JLabel("--");
-        value.setFont(new Font("Railway", Font.BOLD, 38));
+        value.setFont(Ui.font(Font.BOLD, 38));
         value.setForeground(new Color(30, 30, 30));
-        value.setBounds(14, 34, 217, 50);
+        Ui.bounds(value, 14, 34, 217, 50);
         card.add(value);
 
         JLabel subLabel = new JLabel(sub);
-        subLabel.setFont(new Font("Railway", Font.PLAIN, 14));
+        subLabel.setFont(Ui.font(Font.PLAIN, 14));
         subLabel.setForeground(GRAY);
-        subLabel.setBounds(14, 92, 217, 28);
+        Ui.bounds(subLabel, 14, 92, 217, 28);
         card.add(subLabel);
 
         add(card);
-        card.setBounds(x, 190, 245, 130);
+        Ui.bounds(card, x, 190, 245, 130);
         cards.add(card);
         return new JLabel[]{value, subLabel};
     }
@@ -292,7 +292,7 @@ public class Dashboard extends JFrame {
 
     private void buildPlanner() {
         JLabel title = new JLabel("PLAN A NEW CROP");
-        title.setFont(new Font("Railway", Font.BOLD, 26));
+        title.setFont(Ui.font(Font.BOLD, 26));
         title.setForeground(GREEN);
         plannerTitle = title;
         add(title);
@@ -304,13 +304,13 @@ public class Dashboard extends JFrame {
         formPanel = form;
 
         JLabel cropLabel = new JLabel("SELECT CROP:");
-        cropLabel.setFont(new Font("Railway", Font.PLAIN, 22));
-        cropLabel.setBounds(15, 14, 165, 40);
+        cropLabel.setFont(Ui.font(Font.PLAIN, 22));
+        Ui.bounds(cropLabel, 15, 14, 165, 40);
         form.add(cropLabel);
 
         cropDown = new JComboBox<>(new String[]{"", "Wheat", "Rice", "Soybean", "Sugarcane"});
-        cropDown.setFont(new Font("Railway", Font.PLAIN, 22));
-        cropDown.setBounds(185, 14, 300, 40);
+        cropDown.setFont(Ui.font(Font.PLAIN, 22));
+        Ui.bounds(cropDown, 185, 14, 300, 40);
         cropDown.addActionListener(e -> {
             refreshChips();
             updateEstimates();
@@ -320,10 +320,10 @@ public class Dashboard extends JFrame {
         for (int i = 0; i < CROPS.length; i++) {
             final String crop = CROPS[i];
             JButton chip = new JButton(crop);
-            chip.setFont(new Font("Railway", Font.PLAIN, 15));
+            chip.setFont(Ui.font(Font.PLAIN, 15));
             chip.setFocusPainted(false);
             chip.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            chip.setBounds(15 + i * 120, 64, 110, 32);
+            Ui.bounds(chip, 15 + i * 120, 64, 110, 32);
             chip.addActionListener(e -> cropDown.setSelectedItem(crop));
             form.add(chip);
             chips[i] = chip;
@@ -331,13 +331,13 @@ public class Dashboard extends JFrame {
         refreshChips();
 
         JLabel acresLabel = new JLabel("ACREAGE:");
-        acresLabel.setFont(new Font("Railway", Font.PLAIN, 22));
-        acresLabel.setBounds(15, 106, 165, 40);
+        acresLabel.setFont(Ui.font(Font.PLAIN, 22));
+        Ui.bounds(acresLabel, 15, 106, 165, 40);
         form.add(acresLabel);
 
         acresField = new JTextField();
-        acresField.setFont(new Font("Railway", Font.PLAIN, 22));
-        acresField.setBounds(185, 106, 300, 40);
+        acresField.setFont(Ui.font(Font.PLAIN, 22));
+        Ui.bounds(acresField, 185, 106, 300, 40);
         acresField.addActionListener(e -> submitDetails());
         acresField.getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { updateEstimates(); }
@@ -349,22 +349,22 @@ public class Dashboard extends JFrame {
         JPanel estimate = new JPanel(null);
         estimate.setBackground(new Color(245, 250, 245));
         estimate.setBorder(BorderFactory.createLineBorder(new Color(180, 205, 180), 1));
-        estimate.setBounds(15, 154, 470, 102);
+        Ui.bounds(estimate, 15, 154, 470, 102);
         form.add(estimate);
 
         estimateLabel = new JLabel();
-        estimateLabel.setFont(new Font("Railway", Font.PLAIN, 15));
+        estimateLabel.setFont(Ui.font(Font.PLAIN, 15));
         estimateLabel.setForeground(new Color(40, 40, 40));
-        estimateLabel.setBounds(10, 6, 450, 90);
+        Ui.bounds(estimateLabel, 10, 6, 450, 90);
         estimate.add(estimateLabel);
 
         JButton submit = new JButton("SUBMIT PLAN");
-        submit.setFont(new Font("Railway", Font.PLAIN, 24));
+        submit.setFont(Ui.font(Font.PLAIN, 24));
         submit.setForeground(Color.WHITE);
         submit.setBackground(BTN_GREEN);
         submit.setFocusPainted(false);
         submit.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        submit.setBounds(15, 264, 470, 40);
+        Ui.bounds(submit, 15, 264, 470, 40);
         submit.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -404,9 +404,9 @@ public class Dashboard extends JFrame {
 
         profileLabel = new JLabel("<html><b>Crop profile</b><br>Select a crop to see its variety,"
                 + " planting and harvest windows.</html>");
-        profileLabel.setFont(new Font("Railway", Font.PLAIN, 15));
+        profileLabel.setFont(Ui.font(Font.PLAIN, 15));
         profileLabel.setForeground(new Color(40, 40, 40));
-        profileLabel.setBounds(12, 10, 496, 115);
+        Ui.bounds(profileLabel, 12, 10, 496, 115);
         profilePanel.add(profileLabel);
 
         layoutMain();
@@ -414,12 +414,12 @@ public class Dashboard extends JFrame {
 
     private void buildPlansTable() {
         plansTitle = new JLabel("YOUR RECENT PLANS");
-        plansTitle.setFont(new Font("Railway", Font.BOLD, 26));
+        plansTitle.setFont(Ui.font(Font.BOLD, 26));
         plansTitle.setForeground(GREEN);
         add(plansTitle);
 
         searchField = new JTextField();
-        searchField.setFont(new Font("Railway", Font.PLAIN, 18));
+        searchField.setFont(Ui.font(Font.PLAIN, 18));
         searchField.setToolTipText("Type a crop name to filter your plans");
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { applyFilter(); }
@@ -464,8 +464,8 @@ public class Dashboard extends JFrame {
             }
         };
         plansTable = new JTable(plansModel);
-        plansTable.setRowHeight(28);
-        plansTable.setFont(new Font("Railway", Font.PLAIN, 16));
+        plansTable.setRowHeight(Ui.s(28));
+        plansTable.setFont(Ui.font(Font.PLAIN, 16));
         plansTable.setFocusable(false);
         plansTable.setShowGrid(true);
         plansTable.setGridColor(new Color(200, 200, 200));
@@ -481,15 +481,15 @@ public class Dashboard extends JFrame {
         }
         int[] widths = {0, 150, 90, 210, 210, 250};
         for (int i = 0; i < widths.length; i++) {
-            plansTable.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+            plansTable.getColumnModel().getColumn(i).setPreferredWidth(Ui.s(widths[i]));
         }
         plansTable.removeColumn(plansTable.getColumnModel().getColumn(COL_ID));
 
         JTableHeader header = plansTable.getTableHeader();
-        header.setFont(new Font("Railway", Font.BOLD, 16));
+        header.setFont(Ui.font(Font.BOLD, 16));
         header.setBackground(GREEN);
         header.setForeground(Color.WHITE);
-        header.setPreferredSize(new Dimension(1000, 32));
+        header.setPreferredSize(new Dimension(Ui.s(1000), Ui.s(32)));
 
         sorter = new TableRowSorter<>(plansModel);
         plansTable.setRowSorter(sorter);
@@ -518,9 +518,9 @@ public class Dashboard extends JFrame {
         add(statusBar);
 
         statusLabel = new JLabel(" ");
-        statusLabel.setFont(new Font("Railway", Font.PLAIN, 17));
+        statusLabel.setFont(Ui.font(Font.PLAIN, 17));
         statusLabel.setForeground(GRAY);
-        statusLabel.setBounds(12, 4, 1015, 28);
+        Ui.bounds(statusLabel, 12, 4, 1015, 28);
         statusBar.add(statusLabel);
 
         layoutMain();
@@ -528,7 +528,7 @@ public class Dashboard extends JFrame {
 
     private JButton smallButton(String text, Color bg) {
         JButton b = new JButton(text);
-        b.setFont(new Font("Railway", Font.PLAIN, 16));
+        b.setFont(Ui.font(Font.PLAIN, 16));
         b.setForeground(Color.WHITE);
         b.setBackground(bg);
         b.setFocusPainted(false);
@@ -553,31 +553,32 @@ public class Dashboard extends JFrame {
         int h = getContentPane().getHeight();
 
         if (headingLabel != null) {
-            headingLabel.setBounds(510, 35, 700, 80);
-            subHeader.setBounds(510, 120, 750, 40);
-            refreshedLabel.setBounds(1150, 55, 400, 40);
+            Ui.bounds(headingLabel, 510, 35, 700, 80);
+            Ui.bounds(subHeader, 510, 120, 750, 40);
+            Ui.bounds(refreshedLabel, 1150, 55, 400, 40);
         }
 
         int[] cardX = {510, 775, 1040, 1305};
         for (int i = 0; i < cards.size(); i++) {
-            cards.get(i).setBounds(cardX[i], 190, 245, 130);
+            Ui.bounds(cards.get(i), cardX[i], 190, 245, 130);
         }
 
         if (plannerTitle != null) {
-            plannerTitle.setBounds(510, 345, 600, 35);
-            formPanel.setBounds(510, 390, 500, 310);
-            chartPanel.setBounds(1030, 390, 520, 160);
-            profilePanel.setBounds(1030, 565, 520, 135);
+            Ui.bounds(plannerTitle, 510, 345, 600, 35);
+            Ui.bounds(formPanel, 510, 390, 500, 310);
+            Ui.bounds(chartPanel, 1030, 390, 520, 160);
+            Ui.bounds(profilePanel, 1030, 565, 520, 135);
         }
 
         if (plansTitle != null) {
-            plansTitle.setBounds(510, 745, 500, 35);
-            searchField.setBounds(760, 748, 300, 34);
-            openButton.setBounds(1070, 748, 130, 34);
-            refreshButton.setBounds(1210, 748, 160, 34);
-            removeButton.setBounds(1380, 748, 170, 34);
-            tableScroll.setBounds(510, 790, 1040, Math.max(160, h - 790 - 90));
-            statusBar.setBounds(510, h - 85, 1040, 36);
+            Ui.bounds(plansTitle, 510, 745, 500, 35);
+            Ui.bounds(searchField, 760, 748, 300, 34);
+            Ui.bounds(openButton, 1070, 748, 130, 34);
+            Ui.bounds(refreshButton, 1210, 748, 160, 34);
+            Ui.bounds(removeButton, 1380, 748, 170, 34);
+            tableScroll.setBounds(Ui.s(510), Ui.s(790), Ui.s(1040),
+                    Math.max(Ui.s(160), h - Ui.s(790) - Ui.s(90)));
+            statusBar.setBounds(Ui.s(510), h - Ui.s(85), Ui.s(1040), Ui.s(36));
         }
     }
 
@@ -942,9 +943,9 @@ class CropAcresChart extends JPanel {
         int w = getWidth();
         int h = getHeight();
 
-        g2.setFont(new Font("Railway", Font.BOLD, 17));
+        g2.setFont(Ui.font(Font.BOLD, 17));
         g2.setColor(new Color(40, 40, 40));
-        g2.drawString("Planned acres by crop", 14, 26);
+        g2.drawString("Planned acres by crop", Ui.s(14), Ui.s(26));
 
         double max = 0;
         boolean any = false;
@@ -955,26 +956,27 @@ class CropAcresChart extends JPanel {
         if (max <= 0) max = 1;
 
         if (!any) {
-            g2.setFont(new Font("Railway", Font.PLAIN, 15));
+            g2.setFont(Ui.font(Font.PLAIN, 15));
             g2.setColor(new Color(120, 120, 120));
-            g2.drawString("No plans yet - your chart fills in after the first plan.", 14, 60);
+            g2.drawString("No plans yet - your chart fills in after the first plan.",
+                    Ui.s(14), Ui.s(60));
             return;
         }
 
-        int left = 95;
-        int right = w - 78;
-        int top = 40;
-        int barH = 20;
-        int gap = 8;
+        int left = Ui.s(95);
+        int right = w - Ui.s(78);
+        int top = Ui.s(40);
+        int barH = Ui.s(20);
+        int gap = Ui.s(8);
 
-        g2.setFont(new Font("Railway", Font.PLAIN, 15));
+        g2.setFont(Ui.font(Font.PLAIN, 15));
         for (int i = 0; i < CROPS.length; i++) {
             String crop = CROPS[i];
             double value = acresByCrop.get(crop);
             int y = top + i * (barH + gap);
 
             g2.setColor(new Color(60, 60, 60));
-            g2.drawString(crop, 12, y + barH - 5);
+            g2.drawString(crop, Ui.s(12), y + barH - Ui.s(5));
 
             int barW = (int) Math.round((right - left) * (value / max));
             if (value > 0 && barW < 4) barW = 4;
@@ -987,7 +989,7 @@ class CropAcresChart extends JPanel {
 
             g2.setColor(new Color(60, 60, 60));
             String label = CropPlanPage.fmt(value) + (value == 1 ? " acre" : " acres");
-            g2.drawString(label, right + 6, y + barH - 5);
+            g2.drawString(label, right + Ui.s(6), y + barH - Ui.s(5));
         }
     }
 }

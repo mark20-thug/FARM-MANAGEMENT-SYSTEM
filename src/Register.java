@@ -21,56 +21,56 @@ public class Register extends JFrame {
     public Register() {
         setLayout(null);
         setTitle("Farm_Management_System");
-        setSize(1600, 1200);
+        setSize(Ui.windowSize());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //image
         ImageIcon icon = new ImageIcon(getClass().getResource("images/hills.jpeg"));
-        Image icon2 = icon.getImage().getScaledInstance(300, 300, Image.SCALE_DEFAULT);
+        Image icon2 = icon.getImage().getScaledInstance(Ui.s(300), Ui.s(300), Image.SCALE_DEFAULT);
         ImageIcon icon3 = new ImageIcon(icon2);
 
         JLabel imageLabel = new JLabel(icon3);
-        imageLabel.setBounds(20, 20, 500, 600);
+        Ui.bounds(imageLabel, 20, 20, 500, 600);
         add(imageLabel);
 //heading
         JLabel heading = new JLabel("Registration Page");
-        heading.setBounds(550, 30, 800, 95);
-        heading.setFont(new Font("Railway", Font.BOLD, 76));
+        Ui.bounds(heading, 550, 30, 800, 95);
+        heading.setFont(Ui.font(Font.BOLD, 76));
         add(heading);
 //name and name field
         JLabel name = new JLabel("NAME: ");
-        name.setBounds(550, 180, 300, 50);
-        name.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(name, 550, 180, 300, 50);
+        name.setFont(Ui.font(Font.PLAIN, 30));
         add(name);
 
         nameField = new JTextField();
-        nameField.setBounds(950, 180, 500,  50);
-        nameField.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(nameField, 950, 180, 500,  50);
+        nameField.setFont(Ui.font(Font.PLAIN, 30));
         add(nameField);
 //date and dateChooser
         JLabel date = new JLabel("DATE OF BIRTH: ");
-        date.setBounds(550, 280, 300, 50);
-        date.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(date, 550, 280, 300, 50);
+        date.setFont(Ui.font(Font.PLAIN, 30));
         add(date);
 
         dateChooser = new JDateChooser();
-        dateChooser.setBounds(950, 280, 500, 50);
-        dateChooser.setFont(new Font("Railway", Font.PLAIN, 25));
+        Ui.bounds(dateChooser, 950, 280, 500, 50);
+        dateChooser.setFont(Ui.font(Font.PLAIN, 25));
         add(dateChooser);
 //Gender field
         JLabel gender = new JLabel("GENDER: ");
-        gender.setBounds(550, 380, 300, 50);
-        gender.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(gender, 550, 380, 300, 50);
+        gender.setFont(Ui.font(Font.PLAIN, 30));
         add(gender);
     // Gender Radio Buttons
         male = new JRadioButton("Male");
-        male.setBounds(950, 380, 100, 50);
-        male.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(male, 950, 380, 100, 50);
+        male.setFont(Ui.font(Font.PLAIN, 30));
         add(male);
 
         Female = new JRadioButton("Female");
-        Female.setBounds(1320, 380, 200, 50);
-        Female.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(Female, 1320, 380, 200, 50);
+        Female.setFont(Ui.font(Font.PLAIN, 30));
         add(Female);
 
         ButtonGroup group = new ButtonGroup();
@@ -78,61 +78,61 @@ public class Register extends JFrame {
         group.add(Female);
 //Phone Number
         JLabel number = new JLabel("PHONE NUMBER: ");
-        number.setBounds(550, 480, 600, 50);
-        number.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(number, 550, 480, 600, 50);
+        number.setFont(Ui.font(Font.PLAIN, 30));
         add(number);
 
         numberField = new JTextField();
-        numberField.setBounds(950, 480, 500,  50);
-        numberField.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(numberField, 950, 480, 500,  50);
+        numberField.setFont(Ui.font(Font.PLAIN, 30));
         add(numberField);
 //email
         JLabel email = new JLabel("EMAIL: ");
-        email.setBounds(550, 580, 600, 50);
-        email.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(email, 550, 580, 600, 50);
+        email.setFont(Ui.font(Font.PLAIN, 30));
         add(email);
 
         emailField = new JTextField();
-        emailField.setBounds(950, 580, 500,  50);
-        emailField.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(emailField, 950, 580, 500,  50);
+        emailField.setFont(Ui.font(Font.PLAIN, 30));
         add(emailField);
 //District
         JLabel district = new JLabel("DISTRICT: ");
-        district.setBounds(550, 680, 600, 50);
-        district.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(district, 550, 680, 600, 50);
+        district.setFont(Ui.font(Font.PLAIN, 30));
         add(district);
 
         districtField = new JTextField();
-        districtField.setBounds(950, 680, 500,  50);
-        districtField.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(districtField, 950, 680, 500,  50);
+        districtField.setFont(Ui.font(Font.PLAIN, 30));
         add(districtField);
 
 //password
         JLabel password = new JLabel("PASSWORD: ");
-        password.setBounds(550, 780, 600, 50);
-        password.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(password, 550, 780, 600, 50);
+        password.setFont(Ui.font(Font.PLAIN, 30));
         add(password);
 
         passwordField = new JTextField();
-        passwordField.setBounds(950, 780, 500,  50);
-        passwordField.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(passwordField, 950, 780, 500,  50);
+        passwordField.setFont(Ui.font(Font.PLAIN, 30));
         add(passwordField);
     //confirm password
         JLabel confirmPassword = new JLabel("CONFIRM PASSWORD: ");
-        confirmPassword.setBounds(550, 880, 680, 50);
-        confirmPassword.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(confirmPassword, 550, 880, 680, 50);
+        confirmPassword.setFont(Ui.font(Font.PLAIN, 30));
         add(confirmPassword);
 
         confirmPasswordField = new JTextField();
-        confirmPasswordField.setBounds(950, 880, 500,  50);
-        confirmPasswordField.setFont(new Font("Railway", Font.PLAIN, 30));
+        Ui.bounds(confirmPasswordField, 950, 880, 500,  50);
+        confirmPasswordField.setFont(Ui.font(Font.PLAIN, 30));
         add(confirmPasswordField);
 
 //button Register
 
     JButton register = new JButton("REGISTER");
-    register.setBounds(800, 980, 500, 50);
-    register.setFont(new Font("Railway", Font.PLAIN, 30));
+    Ui.bounds(register, 800, 980, 500, 50);
+    register.setFont(Ui.font(Font.PLAIN, 30));
     register.setForeground(new Color(255, 255, 255));
     register.setBackground(new Color(0, 128, 0));
     register.addActionListener(new ActionListener() {
@@ -146,13 +146,13 @@ public class Register extends JFrame {
     add(register);
 //lower text
     JLabel text1 = new JLabel("if you already have and account");
-    text1.setBounds(550, 1080,500, 30);
-    text1.setFont(new Font("RAILWAY", Font.PLAIN, 30));
+    Ui.bounds(text1, 550, 1080, 500, 30);
+    text1.setFont(Ui.font(Font.PLAIN, 30));
     add(text1);
 
     JLabel text2 = new JLabel("LOGIN");
-    text2.setBounds(1100, 1080,200, 30);
-    text2.setFont(new Font("RAILWAY", Font.PLAIN, 30));
+    Ui.bounds(text2, 1100, 1080, 200, 30);
+    text2.setFont(Ui.font(Font.PLAIN, 30));
     text2.setForeground(new Color(0, 40, 255));
     text2.setCursor(new Cursor(Cursor.HAND_CURSOR));
     text2.addMouseListener(new MouseAdapter() {

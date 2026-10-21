@@ -3,9 +3,10 @@
 -- Run from the project root on a machine that has MySQL installed:
 --     mysql -u root -p < schema.sql
 --
--- The script is idempotent: tables are only created if missing and expense
--- costs are always reset to the reference values compiled into the
--- application, so it is safe to run more than once.
+-- The script is idempotent: tables are only created if missing and any
+-- expense row the database does not have yet is added, so it is safe to
+-- run more than once. Existing expense costs are never overwritten, so
+-- values you edit by hand stay edited.
 
 CREATE DATABASE IF NOT EXISTS farm_management_system
     CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -45,8 +46,8 @@ CREATE TABLE IF NOT EXISTS crop_plans (
 ) ENGINE = InnoDB;
 
 -- Reference expense costs (UGX per acre), copied from CropPlanPage.EXPENSE_SEED.
--- The code values are the source of truth: rows that already exist are
--- corrected to them and rows that are missing are added.
+-- Rows that are missing are added; rows that already exist keep the values
+-- currently stored, so re-running this script never reverts a manual edit.
 
 CREATE TEMPORARY TABLE expense_seed (
     crop_name     VARCHAR(100) NOT NULL,
@@ -72,11 +73,6 @@ INSERT INTO expense_seed (crop_name, expense_type, cost_per_acre) VALUES
     ('Sugarcane', 'Fertilizer',  2500.0),
     ('Sugarcane', 'Labor',      18000.0),
     ('Sugarcane', 'Equipment', 900000.0);
-
-UPDATE expenses e
-    JOIN expense_seed s
-      ON s.crop_name = e.crop_name AND s.expense_type = e.expense_type
-SET e.cost_per_acre = s.cost_per_acre;
 
 INSERT INTO expenses (crop_name, expense_type, cost_per_acre)
 SELECT s.crop_name, s.expense_type, s.cost_per_acre
